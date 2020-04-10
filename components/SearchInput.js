@@ -1,12 +1,12 @@
 import React from 'react';
-import { Stylesheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
-export default function SearchInput() {
+export default function SearchInput(props) {
 	return (
 		<View style={styles.container}>
 			<TextInput
 			  autoCorrect={false} 
-			  placeholder={this.props.placeholder} 
+			  placeholder={props.placeholder} 
 			  placeholderTextColor="white" 
 			  underlineColorAndroid="transparent" 
 			  style={styles.textInput} 
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     marginTop: 20, 
     backgroundColor: '#666', 
     marginHorizontal: 40, 
-    paddingHorizontal: 10, 
+    paddingHorizontal: 10,
     borderRadius: 5,
   },
   textInput: {
