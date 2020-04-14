@@ -1,40 +1,92 @@
 import React from 'react';
-import { StyleSheet, Text, View, ImageBackground, KeyboardAvoidingView, Platform } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  ImageBackground, 
+  KeyboardAvoidingView, 
+  Platform,
+  ActivityIndicator,
+  StatusBar
+} from 'react-native';
+
+import getImageForWeather from './utils/getImageForWeather';
+import { fetchLocationId, fetchWeather } from './utils/api';
 
 import SearchInput from './components/SearchInput';
-import getImageForWeather from './utils/getImageForWeather';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      location: 'Los Angeles'
+      loading: false,
+      error: false,
+      location: '',
+      temperature: 0,
+      weather: ''
     };
   }
 
+  componentDidMount() {
+    this.handleUpdateLocation('Los Angeles');
+  }
+
   render() {
-    const { location } = this.state;
+    const { 
+      loading, 
+      error, 
+      location, 
+      weather, 
+      temperature 
+    } = this.state;
 
     return (
       <KeyboardAvoidingView
         style={styles.container}
         behavior="height" 
       >
+        <StatusBar barStyle="light-content" />
         <ImageBackground
-          source={getImageForWeather('Clear')}
+          source={getImageForWeather(weather)}
           style={styles.imageContainer}
           imageStyle={styles.image}
         >
           <View style={styles.detailsContainer}>
-            <Text style={[styles.largeText, styles.textStyle]}>
-              {location}
-            </Text>
-            <Text style={[styles.smallText, styles.textStyle]}>
-              Light Cloud
-            </Text>
-            <Text style={[styles.largeText, styles.textStyle]}>
-              24°
-            </Text>
+            <ActivityIndicator
+              animating={loading}
+              color="white"
+              size="large"
+            />
+            
+            {!loading  && (
+              <View>
+              {error && (
+                <Text style={[styles.smallText, styles.textStyle]}>
+                  Could not load weather, please try a different city.
+                </Text>
+              )}
+
+              {!error && (
+                <View>
+                  <Text
+                    style={[styles.largeText, styles.textStyle]}
+                  >
+                    {location}
+                  </Text>
+                  <Text 
+                    style={[styles.smallText, styles.textStyle]}
+                  >
+                    {weather}
+                  </Text>
+                  <Text
+                    style={[styles.largeText, styles.textStyle]}
+                  >
+                   {`${Math.round(temperature)}°`}
+                  </Text>
+                </View>
+              )}
+              </View>
+            )}
 
             <SearchInput 
               placeholder="Search any city"
@@ -48,9 +100,33 @@ export default class App extends React.Component {
   }
 
   handleUpdateLocation = city => {
+    if (!city) return;
+
     this.setState({
       location: city
     });
+
+    this.setState({ loading: true }, async() => {
+      try {
+        const locationId = await fetchLocationId(city);
+        const { location, weather, temperature } = await fetchWeather(
+          locationId
+        )
+
+        this.setState({
+          loading: false,
+          error: false,
+          location,
+          weather,
+          temperature,
+        })
+      } catch (e) {
+        this.setState({
+          loading: false,
+          error: true
+        })
+      }
+    })
   }
   
 }
