@@ -58,7 +58,7 @@ SearchInput.defaultProps = {
 const styles = StyleSheet.create({
   container: {
     height: 40,
-    width: 300,
+    width: 255,
     marginTop: 20, 
     backgroundColor: '#666', 
     marginHorizontal: 40, 
